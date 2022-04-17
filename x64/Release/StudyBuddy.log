@@ -1,0 +1,19 @@
+﻿  StudyBuddy.cpp
+  TransparencyTest.cpp
+C:\Users\devin\source\repos\StudyBuddy\TransparencyTest.cpp(51,55): warning C4244: 'argument': conversion from 'short' to 'BYTE', possible loss of data
+C:\Users\devin\source\repos\StudyBuddy\TransparencyTest.cpp(87,17): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\devin\source\repos\StudyBuddy\TransparencyTest.cpp(88,20): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\devin\source\repos\StudyBuddy\TransparencyTest.cpp(89,20): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\devin\source\repos\StudyBuddy\TransparencyTest.cpp(95,17): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\devin\source\repos\StudyBuddy\TransparencyTest.cpp(96,17): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\devin\source\repos\StudyBuddy\TransparencyTest.cpp(97,17): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\devin\source\repos\StudyBuddy\TransparencyTest.cpp(98,17): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\devin\source\repos\StudyBuddy\TransparencyTest.cpp(105,16): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\devin\source\repos\StudyBuddy\TransparencyTest.cpp(106,16): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+  WindowHandler.cpp
+  Generating code
+  22 of 22 functions (100.0%) were compiled.
+    21 functions were new in current compilation
+    0 functions had inline decision re-evaluated but remain unchanged
+  Finished generating code
+  StudyBuddy.vcxproj -> C:\Users\devin\source\repos\StudyBuddy\x64\Release\StudyBuddy.exe
