@@ -142,6 +142,8 @@ int Hours = 0;
 int Minutes = 0;
 int ButtonTimer = 0;
 
+int InactivityTimer = 0;
+
 POINT mouse;
 POINT Oldmouse;
 bool mousePressed = 0;
@@ -355,7 +357,7 @@ void UpdatePos() {
     BodyX_V += (BodyX - BodyX_V) * 0.25;
     BodyY_V += (BodyY - BodyY_V) * 0.25;
     BodyOffsetX_V += (BodyOffsetX - BodyOffsetX_V)*0.25;
-    BodyOffsetY_V += (BodyOffsetX - BodyOffsetX_V)*0.25;
+    BodyOffsetY_V += (BodyOffsetY - BodyOffsetY_V)*0.25;
     BodyT_V += (BodyT - BodyT_V)*0.25;
 
     TailOffsetX_V += (TailOffsetX - TailOffsetX_V)*0.25;
@@ -577,14 +579,8 @@ void Scratch()
 
 void Sleepy()
 {
-    /*
     BodyOffsetX = 0;
-    BodyOffsetY = 0;
-    BodyT = -20 + 2 * sin(AnimationTick / 200.0);
-    */
-
-    BodyOffsetX = 0;//150 + 50 * sin(AnimationTick / 2.0) + 50 * sqrt(abs(sin(AnimationTick / 40.0)));
-    BodyOffsetY = -50;
+    BodyOffsetY = -60 + 5 * sin(AnimationTick / 150.0);
     BodyT = 0;
 
     TailOffsetX = 0;
@@ -592,7 +588,7 @@ void Sleepy()
     TailT = 10 * sin(AnimationTick / 20.0);
 
     HeadOffsetX = -5 * sin(AnimationTick / 80.0) + 30;
-    HeadOffsetY = 70;//-10 * sin(AnimationTick / 80.0);
+    HeadOffsetY = 70 - 5 * sin(AnimationTick / 150.0);//-10 * sin(AnimationTick / 80.0);
     HeadT = -40;
 
     EyeOffsetX = 0;
@@ -989,6 +985,7 @@ int main(int argc, char* argv[]) {
             Wave();
             if (Tick > 125) {
                 Stage = 3;
+                InactivityTimer = 0;
             }
             break;
         case 3:
@@ -1060,6 +1057,7 @@ int main(int argc, char* argv[]) {
             }
 
             if (mousePressed && TrickCounter == 0 && !clickingClock && !clickingTimerWindow) {
+                InactivityTimer = 0;
                 ShowTimerWindow = 0;
                 PetCounter += sqrt(pow(Oldmouse.x - mouse.x, 2) + pow(Oldmouse.y - mouse.y, 2));
                 PetLevel += sqrt(pow(Oldmouse.x - mouse.x, 2) + pow(Oldmouse.y - mouse.y, 2));
@@ -1097,6 +1095,9 @@ int main(int argc, char* argv[]) {
                             break;
                         }
                     }
+                }
+                else if (InactivityTimer > 5*60*60) {
+                    Sleepy();
                 }
                 else {
                     PetLevel = 0;
@@ -1168,6 +1169,7 @@ int main(int argc, char* argv[]) {
 
         Tick++;
         AnimationTick++;
+        InactivityTimer++;
     }
 
     //clear memory
