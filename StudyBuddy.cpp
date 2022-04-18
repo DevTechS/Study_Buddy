@@ -27,6 +27,8 @@ SDL_Texture* face;
 SDL_Texture* eye;
 SDL_Texture* eyeH;
 SDL_Texture* mouth;
+SDL_Texture* mouthT;
+SDL_Texture* mouthS;
 SDL_Texture* body;
 SDL_Texture* pawDown;
 SDL_Texture* pawUp;
@@ -114,11 +116,15 @@ double Paw3T = 0;
 POINT mouseP;
 bool mousePressed = 0;
 
+int HeadX = 0;
+int HeadY = 0;
+
 int EyeState = 0; // 0-Default, 1-Happy
 int Paw0State = 0; // 0-Down, 1-Up
 int Paw1State = 0;
 int Paw2State = 0;
 int Paw3State = 0;
+int MouthState = 0; // 0-happy, 1-toung, 2-sad
 
 int Tick = 0;
 int AnimationTick = 0;
@@ -182,8 +188,8 @@ void renderLoop() {
     int HeadOffsetX_r = cos(BodyT_r) * (HeadOffsetX_V - 270) - sin(BodyT_r) * (HeadOffsetY_V - 70);
     int HeadOffsetY_r = sin(BodyT_r) * (HeadOffsetX_V - 270) + cos(BodyT_r) * (HeadOffsetY_V - 70);
 
-    int HeadX = BodyX_V + HeadOffsetX_r;
-    int HeadY = BodyY_V + HeadOffsetY_r;
+    HeadX = BodyX_V + HeadOffsetX_r;
+    HeadY = BodyY_V + HeadOffsetY_r;
     SDL_Rect faceRect = { HeadX - HeadSize / 2, HeadY - 75 - HeadSize / 2, HeadSize, HeadSize };
     SDL_Point HeadPivot = { 125, 200 };
     SDL_RenderCopyEx(renderer, face, NULL, &faceRect, HeadT_V, &HeadPivot, SDL_FLIP_NONE);
@@ -213,7 +219,17 @@ void renderLoop() {
 
     SDL_Rect mouthRect = { HeadX - mouthW / 2 + MouthOffsetX_V, HeadY - 14 - mouthH / 2 + MouthOffsetY_V, mouthW, mouthH };
     SDL_Point MouthPivot = { mouthW / 2, mouthH / 2 + 14 };
-    SDL_RenderCopyEx(renderer, mouth, NULL, &mouthRect, HeadT_V, &MouthPivot, SDL_FLIP_NONE);
+    switch (MouthState) {
+    case 0:
+        SDL_RenderCopyEx(renderer, mouth, NULL, &mouthRect, HeadT_V, &MouthPivot, SDL_FLIP_NONE);
+        break;
+    case 1:
+        SDL_RenderCopyEx(renderer, mouthT, NULL, &mouthRect, HeadT_V, &MouthPivot, SDL_FLIP_NONE);
+        break;
+    case 2:
+        SDL_RenderCopyEx(renderer, mouthS, NULL, &mouthRect, HeadT_V, &MouthPivot, SDL_FLIP_NONE);
+        break;
+    }
 
     SDL_Rect Paw0Rect = { BodyX_V - PawW / 2 - 240 + Paw0OffsetX_V, BodyY_V - PawH / 2 + 120 + Paw0OffsetY_V, PawW, PawH };
     SDL_Rect Paw1Rect = { BodyX_V - PawW / 2 - 230 + Paw1OffsetX_V, BodyY_V - PawH / 2 + 120 + Paw1OffsetY_V, PawW, PawH };
@@ -295,7 +311,44 @@ void UpdatePos() {
 }
 
 void Idle() {
+    BodyT = 1 + 2 * sin(AnimationTick / 40.0);
 
+    TailOffsetX = 0;
+    TailOffsetY = 0;
+    TailT = 15 + 15 * sin(AnimationTick / 40.0);
+
+    HeadOffsetX = 0;
+    HeadOffsetY = 5 * sin(AnimationTick / 80.0);
+    HeadT = 5 * sin(AnimationTick / 60.0);
+
+    EyeOffsetX = 10*(double)(mouseP.x - HeadX)/ desktopWidth;
+    EyeOffsetY = 10*(double)(mouseP.y - HeadY)/ desktopHeight;
+
+    MouthOffsetX = 0;
+    MouthOffsetY = 0;
+
+    Paw0OffsetX = 0;
+    Paw0OffsetY = 0;
+    Paw0T = 0;
+    Paw0State = 0;
+
+    Paw1OffsetX = 0;
+    Paw1OffsetY = 0;
+    Paw1T = 0;
+    Paw1State = 0;
+
+    Paw2OffsetX = 0;
+    Paw2OffsetY = 0;
+    Paw2T = 0;
+    Paw2State = 0;
+
+    Paw3OffsetX = 0;
+    Paw3OffsetY = 0;
+    Paw3T = 0;
+    Paw3State = 0;
+
+    EyeState = 0;
+    MouthState = 0;
 }
 
 void Wave() {
@@ -336,6 +389,7 @@ void Wave() {
     Paw3State = 0;
 
     EyeState = abs(sin(AnimationTick / 40.0)) > 0.5;
+    MouthState = 0;
 }
 
 int main(int argc, char* argv[]) {
@@ -358,6 +412,8 @@ int main(int argc, char* argv[]) {
     eye = IMG_LoadTexture(renderer, "assets/Eye0.png");
     eyeH = IMG_LoadTexture(renderer, "assets/Eye1.png");
     mouth = IMG_LoadTexture(renderer, "assets/Mouth0.png");
+    mouthT = IMG_LoadTexture(renderer, "assets/Mouth1.png");
+    mouthS = IMG_LoadTexture(renderer, "assets/Mouth2.png");
     body = IMG_LoadTexture(renderer, "assets/Body.png");
     pawDown = IMG_LoadTexture(renderer, "assets/Paw0.png");
     pawUp = IMG_LoadTexture(renderer, "assets/Paw1.png");
@@ -388,7 +444,7 @@ int main(int argc, char* argv[]) {
     while (!quit) {
         GetCursorPos(&mouseP);
 
-        Wave();
+        Idle();
 
         UpdatePos();
         renderLoop();
