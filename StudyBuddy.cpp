@@ -47,6 +47,8 @@ int PawH = round(HeadSize * 188 / 700);
 
 double BodyX_V = 1500;
 double BodyY_V = 600;
+double BodyOffsetX_V = 0;
+double BodyOffsetY_V = 0;
 double BodyT_V = 0;
 
 double TailOffsetX_V = 0;
@@ -81,6 +83,8 @@ double Paw3T_V = 0;
 
 double BodyX = 1500;
 double BodyY = 600;
+double BodyOffsetX = 0;
+double BodyOffsetY = 0;
 double BodyT = 0;
 
 double TailOffsetX = 0;
@@ -174,19 +178,23 @@ void renderLoop() {
     */
 
     double BodyT_r = BodyT_V * PI / 180;
-    int TailOffsetX_r = cos(BodyT_r) * (TailOffsetX_V + 70 - 20*sin(BodyT_r)) - sin(BodyT_r) * (TailOffsetY_V - 70);
-    int TailOffsetY_r = sin(BodyT_r) * (TailOffsetX_V + 70 - 20*sin(BodyT_r)) + cos(BodyT_r) * (TailOffsetY_V - 70);
+    double TailOffsetX_r = cos(BodyT_r) * (TailOffsetX_V + 70 - 20*sin(BodyT_r)) - sin(BodyT_r) * (TailOffsetY_V - 70);
+    double TailOffsetY_r = sin(BodyT_r) * (TailOffsetX_V + 70 - 20*sin(BodyT_r)) + cos(BodyT_r) * (TailOffsetY_V - 70);
 
     SDL_Rect tailRect = { BodyX_V + TailOffsetX_r, BodyY_V + TailOffsetY_r, TailW, TailH };
     SDL_Point TailPivot = { TailW / 2, TailH / 4 };
     SDL_RenderCopyEx(renderer, tail, NULL, &tailRect, -45 - TailT_V, &TailPivot, SDL_FLIP_NONE);
 
-    SDL_Rect bodyRect = { BodyX_V - BodyW * 3 / 4, BodyY_V - BodyH / 2, BodyW, BodyH };
+
+    double BodyOffsetX_r = cos(BodyT_r) * (BodyOffsetX_V) - sin(BodyT_r) * (BodyOffsetY_V);
+    double BodyOffsetY_r = sin(BodyT_r) * (BodyOffsetX_V) + cos(BodyT_r) * (BodyOffsetY_V);
+
+    SDL_Rect bodyRect = { BodyX_V - BodyW * 3 / 4 + BodyOffsetX_r, BodyY_V - BodyH / 2 - BodyOffsetY_r, BodyW, BodyH };
     SDL_Point BodyPivot = { BodyW * 3 / 4, BodyH / 2 };
     SDL_RenderCopyEx(renderer, body, NULL, &bodyRect, BodyT_V, &BodyPivot, SDL_FLIP_HORIZONTAL);
 
-    int HeadOffsetX_r = cos(BodyT_r) * (HeadOffsetX_V - 270) - sin(BodyT_r) * (HeadOffsetY_V - 70);
-    int HeadOffsetY_r = sin(BodyT_r) * (HeadOffsetX_V - 270) + cos(BodyT_r) * (HeadOffsetY_V - 70);
+    double HeadOffsetX_r = cos(BodyT_r) * (HeadOffsetX_V - 270) - sin(BodyT_r) * (HeadOffsetY_V - 70);
+    double HeadOffsetY_r = sin(BodyT_r) * (HeadOffsetX_V - 270) + cos(BodyT_r) * (HeadOffsetY_V - 70);
 
     HeadX = BodyX_V + HeadOffsetX_r;
     HeadY = BodyY_V + HeadOffsetY_r;
@@ -194,15 +202,15 @@ void renderLoop() {
     SDL_Point HeadPivot = { 125, 200 };
     SDL_RenderCopyEx(renderer, face, NULL, &faceRect, HeadT_V, &HeadPivot, SDL_FLIP_NONE);
 
-    int EyeXoff1 = 35 + EyeOffsetX_V;
-    int EyeXoff2 = -35 + EyeOffsetX_V;
-    int EyeYoff = -73 + EyeOffsetY_V;
+    double EyeXoff1 = 35 + EyeOffsetX_V;
+    double EyeXoff2 = -35 + EyeOffsetX_V;
+    double EyeYoff = -73 + EyeOffsetY_V;
 
     double HeadT_r = HeadT_V * PI / 180;
-    int Xoff_r1 = cos(HeadT_r) * EyeXoff1 - sin(HeadT_r) * EyeYoff;
-    int Yoff_r1 = sin(HeadT_r) * EyeXoff1 + cos(HeadT_r) * EyeYoff;
-    int Xoff_r2 = cos(HeadT_r) * EyeXoff2 - sin(HeadT_r) * EyeYoff;
-    int Yoff_r2 = sin(HeadT_r) * EyeXoff2 + cos(HeadT_r) * EyeYoff;
+    double Xoff_r1 = cos(HeadT_r) * EyeXoff1 - sin(HeadT_r) * EyeYoff;
+    double Yoff_r1 = sin(HeadT_r) * EyeXoff1 + cos(HeadT_r) * EyeYoff;
+    double Xoff_r2 = cos(HeadT_r) * EyeXoff2 - sin(HeadT_r) * EyeYoff;
+    double Yoff_r2 = sin(HeadT_r) * EyeXoff2 + cos(HeadT_r) * EyeYoff;
 
     SDL_Rect eye1Rect = { HeadX + Xoff_r1 - EyeSize / 2, HeadY + Yoff_r1 - EyeSize / 2, EyeSize, EyeSize };
     SDL_Rect eye2Rect = { HeadX + Xoff_r2 - EyeSize / 2, HeadY + Yoff_r2 - EyeSize / 2, EyeSize, EyeSize };
@@ -311,6 +319,8 @@ void UpdatePos() {
 }
 
 void Idle() {
+    BodyOffsetX = 0;
+    BodyOffsetY = 0;
     BodyT = 1 + 2 * sin(AnimationTick / 40.0);
 
     TailOffsetX = 0;
@@ -352,6 +362,8 @@ void Idle() {
 }
 
 void Wave() {
+    BodyOffsetX = 0;
+    BodyOffsetY = 0;
     BodyT = 45*sqrt(abs(sin(AnimationTick/40.0)));
 
     TailOffsetX = 0;
