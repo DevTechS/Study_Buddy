@@ -26,6 +26,7 @@ SDL_Renderer* renderer2;
 SDL_Texture* face;
 SDL_Texture* eye;
 SDL_Texture* eyeH;
+SDL_Texture* eyeC;
 SDL_Texture* mouth;
 SDL_Texture* mouthT;
 SDL_Texture* mouthS;
@@ -222,6 +223,10 @@ void renderLoop() {
     case 1:
         SDL_RenderCopyEx(renderer, eyeH, NULL, &eye1Rect, HeadT, NULL, SDL_FLIP_NONE);
         SDL_RenderCopyEx(renderer, eyeH, NULL, &eye2Rect, HeadT, NULL, SDL_FLIP_NONE);
+        break;
+    case 2:
+        SDL_RenderCopyEx(renderer, eyeC, NULL, &eye1Rect, HeadT, NULL, SDL_FLIP_NONE);
+        SDL_RenderCopyEx(renderer, eyeC, NULL, &eye2Rect, HeadT, NULL, SDL_FLIP_NONE);
         break;
     }
 
@@ -423,6 +428,7 @@ int main(int argc, char* argv[]) {
     face = IMG_LoadTexture(renderer, "assets/Head1.png");
     eye = IMG_LoadTexture(renderer, "assets/Eye0.png");
     eyeH = IMG_LoadTexture(renderer, "assets/Eye1.png");
+    eyeC = IMG_LoadTexture(renderer, "assets/Eye2.png");
     mouth = IMG_LoadTexture(renderer, "assets/Mouth0.png");
     mouthT = IMG_LoadTexture(renderer, "assets/Mouth1.png");
     mouthS = IMG_LoadTexture(renderer, "assets/Mouth2.png");
