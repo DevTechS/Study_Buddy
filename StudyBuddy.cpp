@@ -35,6 +35,8 @@ SDL_Texture* pawDown;
 SDL_Texture* pawUp;
 SDL_Texture* tail;
 SDL_Texture* alarmclock;
+SDL_Texture* timerWindow;
+SDL_Texture* digits[10];
 
 int HeadSize = 250;
 int BodyW = round(HeadSize * 1100 / 700);
@@ -49,7 +51,7 @@ int PawH = round(HeadSize * 188 / 700);
 int ClockW = 176;
 int ClockH = 216;
 
-double BodyX_V = desktopWidth + 250;
+double BodyX_V = desktopWidth + 450;
 double BodyY_V = 900;
 double BodyOffsetX_V = 0;
 double BodyOffsetY_V = 0;
@@ -85,11 +87,11 @@ double Paw3OffsetX_V = 0;
 double Paw3OffsetY_V = 0;
 double Paw3T_V = 0;
 
-double ClockX_V = 500;
-double ClockY_V = 500;
+double ClockX_V = desktopWidth + 50;
+double ClockY_V = 837;
 double ClockT_V = 0;
 
-double BodyX = desktopWidth - 200;
+double BodyX = desktopWidth + 450;
 double BodyY = 900;
 double BodyOffsetX = 0;
 double BodyOffsetY = 0;
@@ -125,9 +127,20 @@ double Paw3OffsetX = 0;
 double Paw3OffsetY = 0;
 double Paw3T = 0;
 
-double ClockX = desktopWidth - 750;
+double ClockX = desktopWidth + 50;
 double ClockY = 837;
 double ClockT = 0;
+
+double TimerWindowW = 848;
+double TimerWindowH = 388;
+double TimerWindowX = desktopWidth - 1600;
+double TimerWindowY = 500;
+
+bool ShowTimerWindow = 0;
+
+int Hours = 0;
+int Minutes = 0;
+int ButtonTimer = 0;
 
 POINT mouse;
 POINT Oldmouse;
@@ -154,6 +167,11 @@ bool fidgeting = 0;
 double PetCounter = 0;
 double PetLevel = 0;
 double TrickCounter = 0;
+
+int Stage = 0;
+
+bool clickingClock = 0;
+bool clickingTimerWindow = 0;
 
 bool MakeWindowTransparent(SDL_Window* window, COLORREF colorKey) {
     SDL_SysWMinfo wmInfo;
@@ -310,6 +328,20 @@ void renderLoop() {
 
     SDL_Rect ClockRect = { ClockX_V, ClockY_V, ClockW, ClockH };
     SDL_RenderCopyEx(renderer, alarmclock, NULL, &ClockRect, ClockT_V, NULL, SDL_FLIP_NONE);
+
+    if (ShowTimerWindow) {
+        SDL_Rect TimerWindowRect = { TimerWindowX, TimerWindowY, TimerWindowW, TimerWindowH };
+        SDL_RenderCopyEx(renderer, timerWindow, NULL, &TimerWindowRect, 0, NULL, SDL_FLIP_NONE);
+
+        SDL_Rect HourRect = { TimerWindowX + 230, TimerWindowY + 110, 200, 200 };
+        SDL_RenderCopyEx(renderer, digits[Hours%10], NULL, &HourRect, 0, NULL, SDL_FLIP_NONE);
+
+        SDL_Rect MinHRect = { TimerWindowX + 580, TimerWindowY + 110, 200, 200 };
+        SDL_Rect MinLRect = { TimerWindowX + 650, TimerWindowY + 110, 200, 200 };
+        SDL_RenderCopyEx(renderer, digits[Minutes/10], NULL, &MinHRect, 0, NULL, SDL_FLIP_NONE);
+        SDL_RenderCopyEx(renderer, digits[Minutes%10], NULL, &MinLRect, 0, NULL, SDL_FLIP_NONE);
+    }
+
 
     // Add window transparency (Magenta will be transparent)
     MakeWindowTransparent(window, RGB(255, 0, 255));
@@ -682,6 +714,182 @@ void Jump() {
     MouthState = abs(sin(AnimationTick / 40.0)) > 0.5;
 }
 
+void PushClock() {
+
+    BodyOffsetX = 0;
+    BodyOffsetY = 5 * sin(AnimationTick / 10.0);
+    BodyT = -10;
+
+    TailOffsetX = 0;
+    TailOffsetY = 30;
+    TailT = 15 + 15 * sin(AnimationTick / 10.0);
+
+    HeadOffsetX = 10;
+    HeadOffsetY = 35 + 3 * sin(AnimationTick / 10.0);
+    HeadT = -40;
+
+    EyeOffsetX = 0;
+    EyeOffsetY = 0;
+
+    MouthOffsetX = 0;
+    MouthOffsetY = 0;
+
+    Paw0OffsetX = -30 * sin(AnimationTick / 20.0);
+    Paw0OffsetY = -10 * cos(AnimationTick / 20.0);
+    Paw0T = 0;
+    Paw0State = 0;
+
+    Paw1OffsetX = 30 * sin(AnimationTick / 20.0);
+    Paw1OffsetY = 10 * cos(AnimationTick / 20.0);
+    Paw1T = 0;
+    Paw1State = 0;
+
+    Paw2OffsetX = -30 * sin(AnimationTick / 20.0);
+    Paw2OffsetY = -10 * cos(AnimationTick / 20.0);
+    Paw2T = 0;
+    Paw2State = 0;
+
+    Paw3OffsetX = 30 * sin(AnimationTick / 20.0);
+    Paw3OffsetY = 10 * cos(AnimationTick / 20.0);
+    Paw3T = 0;
+    Paw3State = 0;
+
+    EyeState = 1;
+    MouthState = 2;
+}
+
+void PullClock() {
+
+    BodyOffsetX = 0;
+    BodyOffsetY = 5 * sin(AnimationTick / 10.0);
+    BodyT = -10;
+
+    TailOffsetX = 0;
+    TailOffsetY = 30;
+    TailT = 15 + 15 * sin(AnimationTick / 10.0);
+
+    HeadOffsetX = 10;
+    HeadOffsetY = 35 + 3 * sin(AnimationTick / 10.0);
+    HeadT = -40;
+
+    EyeOffsetX = 0;
+    EyeOffsetY = 0;
+
+    MouthOffsetX = 0;
+    MouthOffsetY = 0;
+
+    Paw0OffsetX = -30 * cos(AnimationTick / 20.0);
+    Paw0OffsetY = -10 * sin(AnimationTick / 20.0);
+    Paw0T = 0;
+    Paw0State = 0;
+
+    Paw1OffsetX = 30 * cos(AnimationTick / 20.0);
+    Paw1OffsetY = 10 * sin(AnimationTick / 20.0);
+    Paw1T = 0;
+    Paw1State = 0;
+
+    Paw2OffsetX = -30 * cos(AnimationTick / 20.0);
+    Paw2OffsetY = -10 * sin(AnimationTick / 20.0);
+    Paw2T = 0;
+    Paw2State = 0;
+
+    Paw3OffsetX = 30 * cos(AnimationTick / 20.0);
+    Paw3OffsetY = 10 * sin(AnimationTick / 20.0);
+    Paw3T = 0;
+    Paw3State = 0;
+
+    EyeState = 1;
+    MouthState = 0;
+}
+
+void Walk() {
+
+    BodyOffsetX = 0;
+    BodyOffsetY = 5 * sin(AnimationTick / 10.0);
+    BodyT = 0;
+
+    TailOffsetX = 0;
+    TailOffsetY = 0;
+    TailT = 15 + 15 * sin(AnimationTick / 10.0);
+
+    HeadOffsetX = 0;
+    HeadOffsetY = -10 * sin(AnimationTick / 10.0);
+    HeadT = 5 * sin(AnimationTick / 60.0);
+
+    EyeOffsetX = 10 * (double)(mouse.x - HeadX) / desktopWidth;
+    EyeOffsetY = 10 * (double)(mouse.y - HeadY) / desktopHeight;
+
+    MouthOffsetX = 0;
+    MouthOffsetY = 0;
+
+    Paw0OffsetX = -30 * sin(AnimationTick / 10.0);
+    Paw0OffsetY = -10 * cos(AnimationTick / 10.0);
+    Paw0T = 0;
+    Paw0State = 0;
+
+    Paw1OffsetX = 30 * sin(AnimationTick / 10.0);
+    Paw1OffsetY = 10 * cos(AnimationTick / 10.0);
+    Paw1T = 0;
+    Paw1State = 0;
+
+    Paw2OffsetX = -30 * sin(AnimationTick / 10.0);
+    Paw2OffsetY = -10 * cos(AnimationTick / 10.0);
+    Paw2T = 0;
+    Paw2State = 0;
+
+    Paw3OffsetX = 30 * sin(AnimationTick / 10.0);
+    Paw3OffsetY = 10 * cos(AnimationTick / 10.0);
+    Paw3T = 0;
+    Paw3State = 0;
+
+    EyeState = 0;
+    MouthState = 0;
+}
+
+void WalkBack() {
+
+    BodyOffsetX = 0;
+    BodyOffsetY = 5 * sin(AnimationTick / 10.0);
+    BodyT = 0;
+
+    TailOffsetX = 0;
+    TailOffsetY = 0;
+    TailT = 15 + 15 * sin(AnimationTick / 10.0);
+
+    HeadOffsetX = 0;
+    HeadOffsetY = -10 * sin(AnimationTick / 10.0);
+    HeadT = 5 * sin(AnimationTick / 60.0);
+
+    EyeOffsetX = 10 * (double)(mouse.x - HeadX) / desktopWidth;
+    EyeOffsetY = 10 * (double)(mouse.y - HeadY) / desktopHeight;
+
+    MouthOffsetX = 0;
+    MouthOffsetY = 0;
+
+    Paw0OffsetX = -30 * cos(AnimationTick / 10.0);
+    Paw0OffsetY = -10 * sin(AnimationTick / 10.0);
+    Paw0T = 0;
+    Paw0State = 0;
+
+    Paw1OffsetX = 30 * cos(AnimationTick / 10.0);
+    Paw1OffsetY = 10 * sin(AnimationTick / 10.0);
+    Paw1T = 0;
+    Paw1State = 0;
+
+    Paw2OffsetX = -30 * cos(AnimationTick / 10.0);
+    Paw2OffsetY = -10 * sin(AnimationTick / 10.0);
+    Paw2T = 0;
+    Paw2State = 0;
+
+    Paw3OffsetX = 30 * cos(AnimationTick / 10.0);
+    Paw3OffsetY = 10 * sin(AnimationTick / 10.0);
+    Paw3T = 0;
+    Paw3State = 0;
+
+    EyeState = 0;
+    MouthState = 0;
+}
+
 int main(int argc, char* argv[]) {
 
     window = SDL_CreateWindow("Study Buddy",
@@ -708,6 +916,17 @@ int main(int argc, char* argv[]) {
     pawUp = IMG_LoadTexture(renderer, "assets/Paw1.png");
     tail = IMG_LoadTexture(renderer, "assets/Tail.png");
     alarmclock = IMG_LoadTexture(renderer, "assets/alarmclock.png");
+    timerWindow = IMG_LoadTexture(renderer, "assets/TimerWindow.png");
+    digits[0] = IMG_LoadTexture(renderer, "assets/0.png");
+    digits[1] = IMG_LoadTexture(renderer, "assets/1.png");
+    digits[2] = IMG_LoadTexture(renderer, "assets/2.png");
+    digits[3] = IMG_LoadTexture(renderer, "assets/3.png");
+    digits[4] = IMG_LoadTexture(renderer, "assets/4.png");
+    digits[5] = IMG_LoadTexture(renderer, "assets/5.png");
+    digits[6] = IMG_LoadTexture(renderer, "assets/6.png");
+    digits[7] = IMG_LoadTexture(renderer, "assets/7.png");
+    digits[8] = IMG_LoadTexture(renderer, "assets/8.png");
+    digits[9] = IMG_LoadTexture(renderer, "assets/9.png");
 
     /*
     POINT p;
@@ -745,58 +964,176 @@ int main(int argc, char* argv[]) {
             }
         }
 
-        bool clickingClock = mousePressed && mouse.x > ClockX && mouse.x < ClockX + ClockW && mouse.y > ClockY && mouse.y < ClockY + ClockH;
+        switch (Stage) {
+        case 0:
+            PushClock();
+            BodyX -= 2;
+            ClockT = -10;
+            ClockX -= 2;
+            if (ClockX < desktopWidth - 650) {
+                ClockT = 0;
+                Tick = 0;
+                Stage = 1;
+            }
+            break;
+        case 1:
+            WalkBack();
+            BodyX += 2;
+            if (Tick > 50) {
+                Stage = 2;
+                Tick = 0;
+                AnimationTick = 0;
+            }
+            break;
+        case 2:
+            Wave();
+            if (Tick > 125) {
+                Stage = 3;
+            }
+            break;
+        case 3:
+            clickingClock = mousePressed && mouse.x > ClockX && mouse.x < ClockX + ClockW && mouse.y > ClockY && mouse.y < ClockY + ClockH;
+            clickingTimerWindow = mousePressed && mouse.x > TimerWindowX && mouse.x < TimerWindowX + TimerWindowW && mouse.y > TimerWindowY && mouse.y < TimerWindowY + TimerWindowH;
 
-        if (clickingClock) {
-            cout << "clock" << endl;
-        }
+            if (clickingClock) {
+                ShowTimerWindow = 1;
+            }
 
-        if (mousePressed && TrickCounter == 0 && !clickingClock) {
-            PetCounter += sqrt(pow(Oldmouse.x - mouse.x, 2) + pow(Oldmouse.y - mouse.y, 2));
-            PetLevel += sqrt(pow(Oldmouse.x - mouse.x, 2) + pow(Oldmouse.y - mouse.y, 2));
-            PetLevel *= 0.99;
-            TrickCounter = 0;
-            Petting();
-        } else {
-            if (PetLevel > 1000) {
-                Playful();
-                if (TrickCounter == 60) {
-                    AnimationTick = 0;
-                    if (mouse.y < desktopHeight / 2) {
-                        Trick = 0;
-                    }
-                    else {
-                        Trick = 1;
+            if (clickingTimerWindow && ButtonTimer == 0) {
+
+                int relY = mouse.y - TimerWindowY;
+                int relX = mouse.x - TimerWindowX;
+                if (relX > 784 && relY < 71) {
+                    ShowTimerWindow = 0;
+                    mousePressed = 0;
+                }
+                else if (relX > 134 && relY > 141 && relX < 188 && relY < 202) {
+                    ButtonTimer = 50;
+                    Hours++;
+                    if (Hours > 9) {
+                        Hours = 0;
                     }
                 }
-                if (TrickCounter++ > 60) {
-                    switch (Trick) {
-                    case 0:
-                        Jump();
-                        if (AnimationTick == 125) {
-                            PetLevel = 0;
-                            TrickCounter = 0;
+                else if (relX > 465 && relY > 140 && relX < 519 && relY < 200) {
+                    ButtonTimer = 3;
+                    Minutes++;
+                    if (Minutes > 59) {
+                        Minutes = 0;
+                        Hours++;
+                        if (Hours > 9) {
+                            Hours = 0;
                         }
-                        break;
-                    case 1:
-                        //rollover
-                        if (AnimationTick == 125) {
-                            PetLevel = 0;
-                            TrickCounter = 0;
-                        }
-                        break;
                     }
                 }
-            } else {
-                PetLevel = 0;
-                PetCounter = 0;
-                if (fidgeting) {
-                    Scratch();
+                else if (relX > 134 && relY > 217 && relX < 188 && relY < 274) {
+                    ButtonTimer = 50;
+                    Hours--;
+                    if (Hours < 0) {
+                        Hours = 9;
+                    }
                 }
-                else {
-                    Idle();
+                else if (relX > 465 && relY > 216 && relX < 519 && relY < 274) {
+                    ButtonTimer = 3;
+                    Minutes--;
+                    if (Minutes < 0) {
+                        Minutes = 59;
+                        Hours--;
+                        if (Hours < 0) {
+                            Hours = 9;
+                        }
+                    }
+                }
+                else if (relX > 312 && relY > 319 && relX < 568 && relY < 363) {
+                    ShowTimerWindow = 0;
+                    mousePressed = 0;
+                    Tick = 0;
+                    Stage = 4;
                 }
             }
+            else {
+                if (!mousePressed) {
+                    ButtonTimer = 0;
+                }
+                else {
+                    ButtonTimer--;
+                }
+            }
+
+            if (mousePressed && TrickCounter == 0 && !clickingClock && !clickingTimerWindow) {
+                ShowTimerWindow = 0;
+                PetCounter += sqrt(pow(Oldmouse.x - mouse.x, 2) + pow(Oldmouse.y - mouse.y, 2));
+                PetLevel += sqrt(pow(Oldmouse.x - mouse.x, 2) + pow(Oldmouse.y - mouse.y, 2));
+                PetLevel *= 0.99;
+                TrickCounter = 0;
+                Petting();
+            }
+            else {
+                if (PetLevel > 1000) {
+                    Playful();
+                    if (TrickCounter == 60) {
+                        AnimationTick = 0;
+                        if (mouse.y < desktopHeight / 2) {
+                            Trick = 0;
+                        }
+                        else {
+                            Trick = 1;
+                        }
+                    }
+                    if (TrickCounter++ > 60) {
+                        switch (Trick) {
+                        case 0:
+                            Jump();
+                            if (AnimationTick == 125) {
+                                PetLevel = 0;
+                                TrickCounter = 0;
+                            }
+                            break;
+                        case 1:
+                            //rollover
+                            if (AnimationTick == 125) {
+                                PetLevel = 0;
+                                TrickCounter = 0;
+                            }
+                            break;
+                        }
+                    }
+                }
+                else {
+                    PetLevel = 0;
+                    PetCounter = 0;
+                    if (fidgeting) {
+                        Scratch();
+                    }
+                    else {
+                        Idle();
+                    }
+                }
+            }
+            break;
+        case 4:
+            Walk();
+            BodyX -= 2;
+            if (Tick > 50) {
+                Stage = 5;
+                Tick = 0;
+                AnimationTick = 0;
+            }
+            break;
+        case 5:
+            PullClock();
+            BodyX += 2;
+            ClockT = 10;
+            ClockX += 2;
+            if (ClockX > desktopWidth + 60) {
+                ClockT = 0;
+                Tick = 0;
+                Stage = 6;
+            }
+            break;
+        case 6:
+            std::this_thread::sleep_until(std::chrono::system_clock::now() + std::chrono::hours(Hours) + std::chrono::minutes(Minutes));
+            Stage = 0;
+            break;
         }
 
         UpdatePos();
@@ -819,6 +1156,7 @@ int main(int argc, char* argv[]) {
                 mousePressed = 1;
                 break;
             case SDL_WINDOWEVENT_FOCUS_LOST:
+                ShowTimerWindow = 0;
                 mousePressed = 0;
                 break;
             }
@@ -834,6 +1172,21 @@ int main(int argc, char* argv[]) {
 
     //clear memory
     SDL_DestroyTexture(face);
+    SDL_DestroyTexture(eye);
+    SDL_DestroyTexture(eyeH);
+    SDL_DestroyTexture(eyeC);
+    SDL_DestroyTexture(mouth);
+    SDL_DestroyTexture(mouthT);
+    SDL_DestroyTexture(mouthS);
+    SDL_DestroyTexture(body);
+    SDL_DestroyTexture(pawDown);
+    SDL_DestroyTexture(pawUp);
+    SDL_DestroyTexture(tail);
+    SDL_DestroyTexture(alarmclock);
+    SDL_DestroyTexture(timerWindow);
+    for (int i = 0; i < 10; i++) {
+        SDL_DestroyTexture(digits[i]);
+    }
     IMG_Quit();
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
