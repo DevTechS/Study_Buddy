@@ -1,181 +1,40 @@
-#include <stdlib.h>
-#include <string>
-#include <iostream>
-#include <math.h>
+//
+//  CEN3031 - Intro to Software Engineering
+//  April 20th, 2022
+//  Group 62
+//  
+//  Team Contributions:
+//  Vishwa Krishnan (Project Manager):
+//   - Front End: Developed several animations and tricks for Buddy, including sleeping, scratching, wave, eye movement, playful animation, etc. 
+//   - Researched SDLand Circle CI.
+//   - Contributed to all documentationand project ideation.
+//   - Creative front - end efforts.
+//  
+//  Devin Dykstra (Scrum Master):
+//   - Window Handler
+//   - Render Engine
+//   - Main Logic Loop
+//   - Animation Rig
+//   - Animation Blending / Smoothing
+//   - Final Buddy Sprites
+//
+//  Madeleine Brewer:
+//   - Helped determine and plan product idea (contributed to all documentation)
+//   - Researched possibility of cross - platform product
+//   - Contributed to design of buddy
+//   - Wrote code for the Idle, jump, walk, walk back, push clock, and pull clock animations.
+//
+//
+//  Dorian Karakus:
+//   - Assisted in creation and planning of product idea (contributed to all documentation)
+//   - Researched windows transparency functions as well as timer functions
+//   - Contributed to design of buddy, timer box, and alarm clock
+//   - Created both frontand back end of entire timer functionalityand interaction with user
+//
 
-#include <SDL.h>
-#include <SDL_syswm.h>
-#include <SDL_image.h>
+#include "StudyBuddy.h"
 
-#include <chrono>
-#include <thread>
-
-#define PI 3.14159265
-
-using namespace std;
-
-int desktopWidth = GetSystemMetrics(SM_CXSCREEN);
-int desktopHeight = GetSystemMetrics(SM_CYSCREEN);
-
-SDL_Event event;
-SDL_Window* window;
-SDL_Window* window2;
-SDL_Renderer* renderer;
-SDL_Renderer* renderer2;
-
-SDL_Texture* face;
-SDL_Texture* eye;
-SDL_Texture* eyeH;
-SDL_Texture* eyeC;
-SDL_Texture* mouth;
-SDL_Texture* mouthT;
-SDL_Texture* mouthS;
-SDL_Texture* body;
-SDL_Texture* pawDown;
-SDL_Texture* pawUp;
-SDL_Texture* tail;
-SDL_Texture* alarmclock;
-SDL_Texture* timerWindow;
-SDL_Texture* digits[10];
-
-int HeadSize = 250;
-int BodyW = round(HeadSize * 1100 / 700);
-int BodyH = round(HeadSize * 483 / 700);
-int TailW = round(HeadSize * 117 / 700);
-int TailH = round(HeadSize * 181 / 700);
-int EyeSize = round(HeadSize * 62.0 / 700);
-int mouthW = round(HeadSize * 184.0 / 700);
-int mouthH = round(HeadSize * 178.0 / 700);
-int PawW = round(HeadSize * 202 / 700);
-int PawH = round(HeadSize * 188 / 700);
-int ClockW = 176;
-int ClockH = 216;
-
-double BodyX_V = desktopWidth + 450;
-double BodyY_V = 900;
-double BodyOffsetX_V = 0;
-double BodyOffsetY_V = 0;
-double BodyT_V = 0;
-
-double TailOffsetX_V = 0;
-double TailOffsetY_V = 0;
-double TailT_V = 0;
-
-double HeadOffsetX_V = 0;
-double HeadOffsetY_V = 0;
-double HeadT_V = 0;
-
-double EyeOffsetX_V = 0;
-double EyeOffsetY_V = 0;
-
-double MouthOffsetX_V = 0;
-double MouthOffsetY_V = 0;
-
-double Paw0OffsetX_V = 0;
-double Paw0OffsetY_V = 0;
-double Paw0T_V = 0;
-
-double Paw1OffsetX_V = 0;
-double Paw1OffsetY_V = 0;
-double Paw1T_V = 0;
-
-double Paw2OffsetX_V = 0;
-double Paw2OffsetY_V = 0;
-double Paw2T_V = 0;
-
-double Paw3OffsetX_V = 0;
-double Paw3OffsetY_V = 0;
-double Paw3T_V = 0;
-
-double ClockX_V = desktopWidth + 50;
-double ClockY_V = 837;
-double ClockT_V = 0;
-
-double BodyX = desktopWidth + 450;
-double BodyY = 900;
-double BodyOffsetX = 0;
-double BodyOffsetY = 0;
-double BodyT = 0;
-
-double TailOffsetX = 0;
-double TailOffsetY = 0;
-double TailT = 0;
-
-double HeadOffsetX = 0;
-double HeadOffsetY = 0;
-double HeadT = 0;
-
-double EyeOffsetX = 0;
-double EyeOffsetY = 0;
-
-double MouthOffsetX = 0;
-double MouthOffsetY = 0;
-
-double Paw0OffsetX = 0;
-double Paw0OffsetY = 0;
-double Paw0T = 0;
-
-double Paw1OffsetX = 0;
-double Paw1OffsetY = 0;
-double Paw1T = 0;
-
-double Paw2OffsetX = 0;
-double Paw2OffsetY = 0;
-double Paw2T = 0;
-
-double Paw3OffsetX = 0;
-double Paw3OffsetY = 0;
-double Paw3T = 0;
-
-double ClockX = desktopWidth + 50;
-double ClockY = 837;
-double ClockT = 0;
-
-double TimerWindowW = 848;
-double TimerWindowH = 388;
-double TimerWindowX = desktopWidth - 1600;
-double TimerWindowY = 500;
-
-bool ShowTimerWindow = 0;
-
-int Hours = 0;
-int Minutes = 0;
-int ButtonTimer = 0;
-
-int InactivityTimer = 0;
-
-POINT mouse;
-POINT Oldmouse;
-bool mousePressed = 0;
-
-int HeadX = 0;
-int HeadY = 0;
-
-int EyeState = 0; // 0-Default, 1-Happy
-int Paw0State = 0; // 0-Down, 1-Up
-int Paw1State = 0;
-int Paw2State = 0;
-int Paw3State = 0;
-int MouthState = 0; // 0-happy, 1-toung, 2-sad
-
-int Tick = 0;
-int AnimationTick = 0;
-int Trick = 0;
-
-int BlinkTimer = 240;
-
-bool fidgeting = 0;
-
-double PetCounter = 0;
-double PetLevel = 0;
-double TrickCounter = 0;
-
-int Stage = 0;
-
-bool clickingClock = 0;
-bool clickingTimerWindow = 0;
-
-bool MakeWindowTransparent(SDL_Window* window, COLORREF colorKey) {
+bool StudyBuddy::MakeWindowTransparent(SDL_Window* window, COLORREF colorKey) {
     SDL_SysWMinfo wmInfo;
     SDL_VERSION(&wmInfo.version);
     SDL_GetWindowWMInfo(window, &wmInfo);
@@ -185,7 +44,7 @@ bool MakeWindowTransparent(SDL_Window* window, COLORREF colorKey) {
     return SetLayeredWindowAttributes(hWnd, colorKey, 0, LWA_COLORKEY);
 }
 
-bool MakeWindowTransparentAlpha(SDL_Window* window, COLORREF colorKey, short A) {
+bool StudyBuddy::MakeWindowTransparentAlpha(SDL_Window* window, COLORREF colorKey, short A) {
     SDL_SysWMinfo wmInfo;
     SDL_VERSION(&wmInfo.version);
     SDL_GetWindowWMInfo(window, &wmInfo);
@@ -195,7 +54,7 @@ bool MakeWindowTransparentAlpha(SDL_Window* window, COLORREF colorKey, short A) 
     return SetLayeredWindowAttributes(hWnd, colorKey, A, LWA_COLORKEY | LWA_ALPHA);
 }
 
-void renderLoop() {
+void StudyBuddy::renderLoop() {
     // Set background color to magenta and clear screen
     SDL_SetRenderDrawColor(renderer, 255, 0, 255, 255);
     SDL_RenderClear(renderer);
@@ -257,7 +116,7 @@ void renderLoop() {
     SDL_Rect eye1Rect = { HeadX + Xoff_r1 - EyeSize / 2, HeadY + Yoff_r1 - EyeSize / 2, EyeSize, EyeSize };
     SDL_Rect eye2Rect = { HeadX + Xoff_r2 - EyeSize / 2, HeadY + Yoff_r2 - EyeSize / 2, EyeSize, EyeSize };
     switch (EyeState) {
-    case 0:
+    case 0: // default
         if (BlinkTimer < 10) {
             SDL_RenderCopyEx(renderer, eyeC, NULL, &eye1Rect, HeadT_V, NULL, SDL_FLIP_NONE);
             SDL_RenderCopyEx(renderer, eyeC, NULL, &eye2Rect, HeadT_V, NULL, SDL_FLIP_NONE);
@@ -267,11 +126,11 @@ void renderLoop() {
             SDL_RenderCopyEx(renderer, eye, NULL, &eye2Rect, 0, NULL, SDL_FLIP_NONE);
         }
         break;
-    case 1:
+    case 1: // happy
         SDL_RenderCopyEx(renderer, eyeH, NULL, &eye1Rect, HeadT_V, NULL, SDL_FLIP_NONE);
         SDL_RenderCopyEx(renderer, eyeH, NULL, &eye2Rect, HeadT_V, NULL, SDL_FLIP_NONE);
         break;
-    case 2:
+    case 2: // closed
         SDL_RenderCopyEx(renderer, eyeC, NULL, &eye1Rect, HeadT_V, NULL, SDL_FLIP_NONE);
         SDL_RenderCopyEx(renderer, eyeC, NULL, &eye2Rect, HeadT_V, NULL, SDL_FLIP_NONE);
         break;
@@ -280,13 +139,13 @@ void renderLoop() {
     SDL_Rect mouthRect = { HeadX - mouthW / 2 + MouthOffsetX_V, HeadY - 14 - mouthH / 2 + MouthOffsetY_V, mouthW, mouthH };
     SDL_Point MouthPivot = { mouthW / 2, mouthH / 2 + 14 };
     switch (MouthState) {
-    case 0:
+    case 0: // default (happy)
         SDL_RenderCopyEx(renderer, mouth, NULL, &mouthRect, HeadT_V, &MouthPivot, SDL_FLIP_NONE);
         break;
-    case 1:
+    case 1: // tounge out
         SDL_RenderCopyEx(renderer, mouthT, NULL, &mouthRect, HeadT_V, &MouthPivot, SDL_FLIP_NONE);
         break;
-    case 2:
+    case 2: // neutral
         SDL_RenderCopyEx(renderer, mouthS, NULL, &mouthRect, HeadT_V, &MouthPivot, SDL_FLIP_NONE);
         break;
     }
@@ -296,10 +155,10 @@ void renderLoop() {
     SDL_Rect Paw2Rect = { BodyX_V - PawW / 2 + 30 + Paw2OffsetX_V, BodyY_V - PawH / 2 + 120 + Paw2OffsetY_V, PawW, PawH };
     SDL_Rect Paw3Rect = { BodyX_V - PawW / 2 + 40 + Paw3OffsetX_V, BodyY_V - PawH / 2 + 120 + Paw3OffsetY_V, PawW, PawH };
     switch (Paw0State) {
-    case 0:
+    case 0: // down
         SDL_RenderCopyEx(renderer, pawDown, NULL, &Paw0Rect, Paw0T_V, NULL, SDL_FLIP_NONE);
         break;
-    case 1:
+    case 1: // up
         SDL_RenderCopyEx(renderer, pawUp, NULL, &Paw0Rect, Paw0T_V, NULL, SDL_FLIP_NONE);
         break;
     }
@@ -353,7 +212,7 @@ void renderLoop() {
     //SDL_RenderPresent(renderer2);
 }
 
-void UpdatePos() {
+void StudyBuddy::UpdatePos() {
     BodyX_V += (BodyX - BodyX_V) * 0.25;
     BodyY_V += (BodyY - BodyY_V) * 0.25;
     BodyOffsetX_V += (BodyOffsetX - BodyOffsetX_V)*0.25;
@@ -395,7 +254,7 @@ void UpdatePos() {
     ClockT_V += (ClockT - ClockT_V) * 0.25;
 }
 
-void Idle() {
+void StudyBuddy::Idle() {
     BodyOffsetX = 0;
     BodyOffsetY = 0;
     BodyT = 1 + 2 * sin(AnimationTick / 40.0);
@@ -438,7 +297,7 @@ void Idle() {
     MouthState = 0;
 }
 
-void Petting() {
+void StudyBuddy::Petting() {
     BodyOffsetX = 0;
     BodyOffsetY = 0;
     BodyT = -5 + sin(AnimationTick / 10.0);
@@ -481,7 +340,7 @@ void Petting() {
     MouthState = 1;
 }
 
-void Wave() {
+void StudyBuddy::Wave() {
     BodyOffsetX = 0;
     BodyOffsetY = 0;
     BodyT = 45 * sqrt(abs(sin(AnimationTick / 40.0)));
@@ -524,7 +383,7 @@ void Wave() {
     MouthState = 0;
 }
 
-void Scratch()
+void StudyBuddy::Scratch()
 {
     /*
     BodyOffsetX = 0;
@@ -577,7 +436,7 @@ void Scratch()
     MouthState = 2;
 }
 
-void Sleepy()
+void StudyBuddy::Sleepy()
 {
     BodyOffsetX = 0;
     BodyOffsetY = -60 + 5 * sin(AnimationTick / 150.0);
@@ -624,7 +483,7 @@ void Sleepy()
     MouthState = 2;
 }
 
-void Playful() {
+void StudyBuddy::Playful() {
     BodyOffsetX = 0;
     BodyOffsetY = 0;
     BodyT = -20;
@@ -667,7 +526,7 @@ void Playful() {
     MouthState = 1;
 }
 
-void Jump() {
+void StudyBuddy::Jump() {
     BodyOffsetX = 100 * abs(sin(AnimationTick / 40.0));
     BodyOffsetY = 100 * abs(sin(AnimationTick / 40.0));
     BodyT = 45 * sqrt(abs(sin(AnimationTick / 40.0)));
@@ -710,7 +569,7 @@ void Jump() {
     MouthState = abs(sin(AnimationTick / 40.0)) > 0.5;
 }
 
-void PushClock() {
+void StudyBuddy::PushClock() {
 
     BodyOffsetX = 0;
     BodyOffsetY = 5 * sin(AnimationTick / 10.0);
@@ -754,7 +613,7 @@ void PushClock() {
     MouthState = 2;
 }
 
-void PullClock() {
+void StudyBuddy::PullClock() {
 
     BodyOffsetX = 0;
     BodyOffsetY = 5 * sin(AnimationTick / 10.0);
@@ -798,7 +657,7 @@ void PullClock() {
     MouthState = 0;
 }
 
-void Walk() {
+void StudyBuddy::Walk() {
 
     BodyOffsetX = 0;
     BodyOffsetY = 5 * sin(AnimationTick / 10.0);
@@ -842,7 +701,7 @@ void Walk() {
     MouthState = 0;
 }
 
-void WalkBack() {
+void StudyBuddy::WalkBack() {
 
     BodyOffsetX = 0;
     BodyOffsetY = 5 * sin(AnimationTick / 10.0);
@@ -886,7 +745,7 @@ void WalkBack() {
     MouthState = 0;
 }
 
-int main(int argc, char* argv[]) {
+int StudyBuddy::StartBuddy() {
 
     window = SDL_CreateWindow("Study Buddy",
         SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
@@ -898,7 +757,7 @@ int main(int argc, char* argv[]) {
     */
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     //renderer2 = SDL_CreateRenderer(window2, -1, SDL_RENDERER_ACCELERATED);
-
+    
     // Load PNGs
     face = IMG_LoadTexture(renderer, "assets/Head1.png");
     eye = IMG_LoadTexture(renderer, "assets/Eye0.png");
@@ -989,7 +848,7 @@ int main(int argc, char* argv[]) {
             }
             break;
         case 3:
-            clickingClock = mousePressed && mouse.x > ClockX && mouse.x < ClockX + ClockW && mouse.y > ClockY && mouse.y < ClockY + ClockH;
+            clickingClock = mousePressed && mouse.x > ClockX && mouse.x < ClockX + ClockW && mouse.y > ClockY && mouse.y < ClockY + ClockH; // check bounds for clock and timer window
             clickingTimerWindow = mousePressed && mouse.x > TimerWindowX && mouse.x < TimerWindowX + TimerWindowW && mouse.y > TimerWindowY && mouse.y < TimerWindowY + TimerWindowH;
 
             if (clickingClock) {
@@ -1004,17 +863,17 @@ int main(int argc, char* argv[]) {
                     ShowTimerWindow = 0;
                     mousePressed = 0;
                 }
-                else if (relX > 134 && relY > 141 && relX < 188 && relY < 202) {
+                else if (relX > 134 && relY > 141 && relX < 188 && relY < 202) { // hours up
                     ButtonTimer = 50;
                     Hours++;
                     if (Hours > 9) {
                         Hours = 0;
                     }
                 }
-                else if (relX > 465 && relY > 140 && relX < 519 && relY < 200) {
+                else if (relX > 465 && relY > 140 && relX < 519 && relY < 200) { // minutes up
                     ButtonTimer = 3;
                     Minutes++;
-                    if (Minutes > 59) {
+                    if (Minutes > 59) { // rollover
                         Minutes = 0;
                         Hours++;
                         if (Hours > 9) {
@@ -1022,17 +881,17 @@ int main(int argc, char* argv[]) {
                         }
                     }
                 }
-                else if (relX > 134 && relY > 217 && relX < 188 && relY < 274) {
+                else if (relX > 134 && relY > 217 && relX < 188 && relY < 274) { // hours down
                     ButtonTimer = 50;
                     Hours--;
                     if (Hours < 0) {
                         Hours = 9;
                     }
                 }
-                else if (relX > 465 && relY > 216 && relX < 519 && relY < 274) {
+                else if (relX > 465 && relY > 216 && relX < 519 && relY < 274) { // minutes down
                     ButtonTimer = 3;
                     Minutes--;
-                    if (Minutes < 0) {
+                    if (Minutes < 0) { // rollover
                         Minutes = 59;
                         Hours--;
                         if (Hours < 0) {
@@ -1040,7 +899,7 @@ int main(int argc, char* argv[]) {
                         }
                     }
                 }
-                else if (relX > 312 && relY > 319 && relX < 568 && relY < 363) {
+                else if (relX > 312 && relY > 319 && relX < 568 && relY < 363) { // X button
                     ShowTimerWindow = 0;
                     mousePressed = 0;
                     Tick = 0;
@@ -1048,6 +907,7 @@ int main(int argc, char* argv[]) {
                 }
             }
             else {
+                // slows hour ticking if holding button
                 if (!mousePressed) {
                     ButtonTimer = 0;
                 }
@@ -1096,7 +956,7 @@ int main(int argc, char* argv[]) {
                         }
                     }
                 }
-                else if (InactivityTimer > 5*60*60) {
+                else if (InactivityTimer > 2.5*60*60) {
                     Sleepy();
                 }
                 else {
@@ -1129,16 +989,23 @@ int main(int argc, char* argv[]) {
                 ClockT = 0;
                 Tick = 0;
                 Stage = 6;
+                TimerStartTime = std::chrono::system_clock::now();
             }
             break;
         case 6:
-            std::this_thread::sleep_until(std::chrono::system_clock::now() + std::chrono::hours(Hours) + std::chrono::minutes(Minutes));
-            Stage = 0;
+            if (TimerStartTime + std::chrono::hours(Hours) + std::chrono::minutes(Minutes) < std::chrono::system_clock::now()) {
+                Stage = 0;
+            }
+            else {
+                std::this_thread::sleep_until(std::chrono::system_clock::now() + std::chrono::milliseconds(1000)); // periodically check for SDL events to prevent Not responding error
+            }
             break;
         }
 
-        UpdatePos();
-        renderLoop();
+        if (Stage != 6) {
+            UpdatePos();
+            renderLoop();
+        }
 
         while (SDL_PollEvent(&event) != 0) {
             switch (event.type) {
@@ -1194,4 +1061,9 @@ int main(int argc, char* argv[]) {
     SDL_DestroyWindow(window);
     SDL_Quit();
     return 0;
+}
+
+int main(int argc, char* argv[]) {
+    StudyBuddy Buddy;
+    return Buddy.StartBuddy();
 }

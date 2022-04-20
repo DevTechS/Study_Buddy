@@ -18,13 +18,19 @@
     <ClCompile Include="StudyBuddy.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="packages\googletest-release-1.11.0\googletest\src\gtest_main.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="packages\googletest-release-1.11.0\googletest\src\gtest-all.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="assets\pnggrad16rgb.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="assets\Riolu-Test.png">
-      <Filter>Resource Files</Filter>
-    </Image>
+    <ClInclude Include="StudyBuddy.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
