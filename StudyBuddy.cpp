@@ -63,17 +63,17 @@ void StudyBuddy::renderLoop() {
     SDL_RenderClear(renderer2);
 
     // blue square in top-left corner
-    SDL_Rect rect1 = { 0 + Tick, 0, 100, 100 };
+    SDL_FRect rect1 = { 0 + Tick, 0, 100, 100 };
     SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
     SDL_RenderFillRect(renderer, &rect1);
 
     // red square in center of the screen
-    SDL_Rect rect2 = { (desktopWidth - 100) / 2, (desktopHeight - 100) / 2, 100, 100 };
+    SDL_FRect rect2 = { (desktopWidth - 100) / 2, (desktopHeight - 100) / 2, 100, 100 };
     SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
     SDL_RenderFillRect(renderer, &rect2);
 
     // transparent green square in center of the screen
-    SDL_Rect rect3 = { (desktopWidth - 100) / 2, (desktopHeight - 100) / 4, 100, 100 };
+    SDL_FRect rect3 = { (desktopWidth - 100) / 2, (desktopHeight - 100) / 4, 100, 100 };
     SDL_SetRenderDrawColor(renderer2, 0, 255, 0, 255);
     SDL_RenderFillRect(renderer2, &rect3);
     */
@@ -82,26 +82,25 @@ void StudyBuddy::renderLoop() {
     double TailOffsetX_r = cos(BodyT_r) * (TailOffsetX_V + 70 - 20*sin(BodyT_r)) - sin(BodyT_r) * (TailOffsetY_V - 70);
     double TailOffsetY_r = sin(BodyT_r) * (TailOffsetX_V + 70 - 20*sin(BodyT_r)) + cos(BodyT_r) * (TailOffsetY_V - 70);
 
-    SDL_Rect tailRect = { BodyX_V + TailOffsetX_r, BodyY_V + TailOffsetY_r, TailW, TailH };
-    SDL_Point TailPivot = { TailW / 2, TailH / 4 };
-    SDL_RenderCopyEx(renderer, tail, NULL, &tailRect, -45 - TailT_V, &TailPivot, SDL_FLIP_NONE);
-
+    SDL_FRect tailRect = { BodyX_V + TailOffsetX_r, BodyY_V + TailOffsetY_r, TailW, TailH };
+    SDL_FPoint TailPivot = { TailW / 2, TailH / 4 };
+    SDL_RenderCopyExF(renderer, tail, NULL, &tailRect, -45 - TailT_V, &TailPivot, SDL_FLIP_NONE);
 
     double BodyOffsetX_r = cos(BodyT_r) * (BodyOffsetX_V) - sin(BodyT_r) * (BodyOffsetY_V);
     double BodyOffsetY_r = sin(BodyT_r) * (BodyOffsetX_V) + cos(BodyT_r) * (BodyOffsetY_V);
 
-    SDL_Rect bodyRect = { BodyX_V - BodyW * 3 / 4 + BodyOffsetX_r, BodyY_V - BodyH / 2 - BodyOffsetY_r, BodyW, BodyH };
-    SDL_Point BodyPivot = { BodyW * 3 / 4, BodyH / 2 };
-    SDL_RenderCopyEx(renderer, body, NULL, &bodyRect, BodyT_V, &BodyPivot, SDL_FLIP_HORIZONTAL);
+    SDL_FRect bodyRect = { BodyX_V - BodyW * 3 / 4 + BodyOffsetX_r, BodyY_V - BodyH / 2 - BodyOffsetY_r, BodyW, BodyH };
+    SDL_FPoint BodyPivot = { BodyW * 3 / 4, BodyH / 2 };
+    SDL_RenderCopyExF(renderer, body, NULL, &bodyRect, BodyT_V, &BodyPivot, SDL_FLIP_HORIZONTAL);
 
     double HeadOffsetX_r = cos(BodyT_r) * (HeadOffsetX_V - 270) - sin(BodyT_r) * (HeadOffsetY_V - 70);
     double HeadOffsetY_r = sin(BodyT_r) * (HeadOffsetX_V - 270) + cos(BodyT_r) * (HeadOffsetY_V - 70);
 
     HeadX = BodyX_V + HeadOffsetX_r;
     HeadY = BodyY_V + HeadOffsetY_r;
-    SDL_Rect faceRect = { HeadX - HeadSize / 2, HeadY - 75 - HeadSize / 2, HeadSize, HeadSize };
-    SDL_Point HeadPivot = { 125, 200 };
-    SDL_RenderCopyEx(renderer, face, NULL, &faceRect, HeadT_V, &HeadPivot, SDL_FLIP_NONE);
+    SDL_FRect faceRect = { HeadX - HeadSize / 2, HeadY - 75 - HeadSize / 2, HeadSize, HeadSize };
+    SDL_FPoint HeadPivot = { 125, 200 };
+    SDL_RenderCopyExF(renderer, face, NULL, &faceRect, HeadT_V, &HeadPivot, SDL_FLIP_NONE);
 
     double EyeXoff1 = 35 + EyeOffsetX_V;
     double EyeXoff2 = -35 + EyeOffsetX_V;
@@ -113,96 +112,168 @@ void StudyBuddy::renderLoop() {
     double Xoff_r2 = cos(HeadT_r) * EyeXoff2 - sin(HeadT_r) * EyeYoff;
     double Yoff_r2 = sin(HeadT_r) * EyeXoff2 + cos(HeadT_r) * EyeYoff;
 
-    SDL_Rect eye1Rect = { HeadX + Xoff_r1 - EyeSize / 2, HeadY + Yoff_r1 - EyeSize / 2, EyeSize, EyeSize };
-    SDL_Rect eye2Rect = { HeadX + Xoff_r2 - EyeSize / 2, HeadY + Yoff_r2 - EyeSize / 2, EyeSize, EyeSize };
+    SDL_FRect eye1Rect = { HeadX + Xoff_r1 - EyeSize / 2, HeadY + Yoff_r1 - EyeSize / 2, EyeSize, EyeSize };
+    SDL_FRect eye2Rect = { HeadX + Xoff_r2 - EyeSize / 2, HeadY + Yoff_r2 - EyeSize / 2, EyeSize, EyeSize };
     switch (EyeState) {
     case 0: // default
         if (BlinkTimer < 10) {
-            SDL_RenderCopyEx(renderer, eyeC, NULL, &eye1Rect, HeadT_V, NULL, SDL_FLIP_NONE);
-            SDL_RenderCopyEx(renderer, eyeC, NULL, &eye2Rect, HeadT_V, NULL, SDL_FLIP_NONE);
+            SDL_RenderCopyExF(renderer, eyeC, NULL, &eye1Rect, HeadT_V, NULL, SDL_FLIP_NONE);
+            SDL_RenderCopyExF(renderer, eyeC, NULL, &eye2Rect, HeadT_V, NULL, SDL_FLIP_NONE);
         }
         else {
-            SDL_RenderCopyEx(renderer, eye, NULL, &eye1Rect, 0, NULL, SDL_FLIP_NONE);
-            SDL_RenderCopyEx(renderer, eye, NULL, &eye2Rect, 0, NULL, SDL_FLIP_NONE);
+            SDL_RenderCopyExF(renderer, eye, NULL, &eye1Rect, 0, NULL, SDL_FLIP_NONE);
+            SDL_RenderCopyExF(renderer, eye, NULL, &eye2Rect, 0, NULL, SDL_FLIP_NONE);
         }
         break;
     case 1: // happy
-        SDL_RenderCopyEx(renderer, eyeH, NULL, &eye1Rect, HeadT_V, NULL, SDL_FLIP_NONE);
-        SDL_RenderCopyEx(renderer, eyeH, NULL, &eye2Rect, HeadT_V, NULL, SDL_FLIP_NONE);
+        SDL_RenderCopyExF(renderer, eyeH, NULL, &eye1Rect, HeadT_V, NULL, SDL_FLIP_NONE);
+        SDL_RenderCopyExF(renderer, eyeH, NULL, &eye2Rect, HeadT_V, NULL, SDL_FLIP_NONE);
         break;
     case 2: // closed
-        SDL_RenderCopyEx(renderer, eyeC, NULL, &eye1Rect, HeadT_V, NULL, SDL_FLIP_NONE);
-        SDL_RenderCopyEx(renderer, eyeC, NULL, &eye2Rect, HeadT_V, NULL, SDL_FLIP_NONE);
+        SDL_RenderCopyExF(renderer, eyeC, NULL, &eye1Rect, HeadT_V, NULL, SDL_FLIP_NONE);
+        SDL_RenderCopyExF(renderer, eyeC, NULL, &eye2Rect, HeadT_V, NULL, SDL_FLIP_NONE);
         break;
     }
 
-    SDL_Rect mouthRect = { HeadX - mouthW / 2 + MouthOffsetX_V, HeadY - 14 - mouthH / 2 + MouthOffsetY_V, mouthW, mouthH };
-    SDL_Point MouthPivot = { mouthW / 2, mouthH / 2 + 14 };
+    SDL_FRect mouthRect = { HeadX - mouthW / 2 + MouthOffsetX_V, HeadY - 14 - mouthH / 2 + MouthOffsetY_V, mouthW, mouthH };
+    SDL_FPoint MouthPivot = { mouthW / 2, mouthH / 2 + 14 };
     switch (MouthState) {
     case 0: // default (happy)
-        SDL_RenderCopyEx(renderer, mouth, NULL, &mouthRect, HeadT_V, &MouthPivot, SDL_FLIP_NONE);
+        SDL_RenderCopyExF(renderer, mouth, NULL, &mouthRect, HeadT_V, &MouthPivot, SDL_FLIP_NONE);
         break;
     case 1: // tounge out
-        SDL_RenderCopyEx(renderer, mouthT, NULL, &mouthRect, HeadT_V, &MouthPivot, SDL_FLIP_NONE);
+        SDL_RenderCopyExF(renderer, mouthT, NULL, &mouthRect, HeadT_V, &MouthPivot, SDL_FLIP_NONE);
         break;
     case 2: // neutral
-        SDL_RenderCopyEx(renderer, mouthS, NULL, &mouthRect, HeadT_V, &MouthPivot, SDL_FLIP_NONE);
+        SDL_RenderCopyExF(renderer, mouthS, NULL, &mouthRect, HeadT_V, &MouthPivot, SDL_FLIP_NONE);
         break;
     }
 
-    SDL_Rect Paw0Rect = { BodyX_V - PawW / 2 - 240 + Paw0OffsetX_V, BodyY_V - PawH / 2 + 120 + Paw0OffsetY_V, PawW, PawH };
-    SDL_Rect Paw1Rect = { BodyX_V - PawW / 2 - 230 + Paw1OffsetX_V, BodyY_V - PawH / 2 + 120 + Paw1OffsetY_V, PawW, PawH };
-    SDL_Rect Paw2Rect = { BodyX_V - PawW / 2 + 30 + Paw2OffsetX_V, BodyY_V - PawH / 2 + 120 + Paw2OffsetY_V, PawW, PawH };
-    SDL_Rect Paw3Rect = { BodyX_V - PawW / 2 + 40 + Paw3OffsetX_V, BodyY_V - PawH / 2 + 120 + Paw3OffsetY_V, PawW, PawH };
+    SDL_FRect Paw0Rect = { BodyX_V - PawW / 2 - 240 + Paw0OffsetX_V, BodyY_V - PawH / 2 + 120 + Paw0OffsetY_V, PawW, PawH };
+    SDL_FRect Paw1Rect = { BodyX_V - PawW / 2 - 230 + Paw1OffsetX_V, BodyY_V - PawH / 2 + 120 + Paw1OffsetY_V, PawW, PawH };
+    SDL_FRect Paw2Rect = { BodyX_V - PawW / 2 + 30 + Paw2OffsetX_V, BodyY_V - PawH / 2 + 120 + Paw2OffsetY_V, PawW, PawH };
+    SDL_FRect Paw3Rect = { BodyX_V - PawW / 2 + 40 + Paw3OffsetX_V, BodyY_V - PawH / 2 + 120 + Paw3OffsetY_V, PawW, PawH };
     switch (Paw0State) {
     case 0: // down
-        SDL_RenderCopyEx(renderer, pawDown, NULL, &Paw0Rect, Paw0T_V, NULL, SDL_FLIP_NONE);
+        SDL_RenderCopyExF(renderer, pawDown, NULL, &Paw0Rect, Paw0T_V, NULL, SDL_FLIP_NONE);
         break;
     case 1: // up
-        SDL_RenderCopyEx(renderer, pawUp, NULL, &Paw0Rect, Paw0T_V, NULL, SDL_FLIP_NONE);
+        SDL_RenderCopyExF(renderer, pawUp, NULL, &Paw0Rect, Paw0T_V, NULL, SDL_FLIP_NONE);
         break;
     }
     switch (Paw1State) {
     case 0:
-        SDL_RenderCopyEx(renderer, pawDown, NULL, &Paw1Rect, Paw1T_V, NULL, SDL_FLIP_NONE);
+        SDL_RenderCopyExF(renderer, pawDown, NULL, &Paw1Rect, Paw1T_V, NULL, SDL_FLIP_NONE);
         break;
     case 1:
-        SDL_RenderCopyEx(renderer, pawUp, NULL, &Paw1Rect, Paw1T_V, NULL, SDL_FLIP_NONE);
+        SDL_RenderCopyExF(renderer, pawUp, NULL, &Paw1Rect, Paw1T_V, NULL, SDL_FLIP_NONE);
         break;
     }
     switch (Paw2State) {
     case 0:
-        SDL_RenderCopyEx(renderer, pawDown, NULL, &Paw2Rect, Paw2T_V, NULL, SDL_FLIP_NONE);
+        SDL_RenderCopyExF(renderer, pawDown, NULL, &Paw2Rect, Paw2T_V, NULL, SDL_FLIP_NONE);
         break;
     case 1:
-        SDL_RenderCopyEx(renderer, pawUp, NULL, &Paw2Rect, Paw2T_V, NULL, SDL_FLIP_NONE);
+        SDL_RenderCopyExF(renderer, pawUp, NULL, &Paw2Rect, Paw2T_V, NULL, SDL_FLIP_NONE);
         break;
     }
     switch (Paw3State) {
     case 0:
-        SDL_RenderCopyEx(renderer, pawDown, NULL, &Paw3Rect, Paw3T_V, NULL, SDL_FLIP_NONE);
+        SDL_RenderCopyExF(renderer, pawDown, NULL, &Paw3Rect, Paw3T_V, NULL, SDL_FLIP_NONE);
         break;
     case 1:
-        SDL_RenderCopyEx(renderer, pawUp, NULL, &Paw3Rect, Paw3T_V, NULL, SDL_FLIP_NONE);
+        SDL_RenderCopyExF(renderer, pawUp, NULL, &Paw3Rect, Paw3T_V, NULL, SDL_FLIP_NONE);
         break;
     }
 
-    SDL_Rect ClockRect = { ClockX_V, ClockY_V, ClockW, ClockH };
-    SDL_RenderCopyEx(renderer, alarmclock, NULL, &ClockRect, ClockT_V, NULL, SDL_FLIP_NONE);
+    SDL_FRect ClockRect = { ClockX_V, ClockY_V, ClockW, ClockH };
+    SDL_RenderCopyExF(renderer, alarmclock, NULL, &ClockRect, ClockT_V, NULL, SDL_FLIP_NONE);
 
     if (ShowTimerWindow) {
-        SDL_Rect TimerWindowRect = { TimerWindowX, TimerWindowY, TimerWindowW, TimerWindowH };
-        SDL_RenderCopyEx(renderer, timerWindow, NULL, &TimerWindowRect, 0, NULL, SDL_FLIP_NONE);
+        SDL_FRect TimerWindowRect = { TimerWindowX, TimerWindowY, TimerWindowW, TimerWindowH };
+        SDL_RenderCopyExF(renderer, timerWindow, NULL, &TimerWindowRect, 0, NULL, SDL_FLIP_NONE);
 
-        SDL_Rect HourRect = { TimerWindowX + 230, TimerWindowY + 110, 200, 200 };
-        SDL_RenderCopyEx(renderer, digits[Hours%10], NULL, &HourRect, 0, NULL, SDL_FLIP_NONE);
+        SDL_FRect HourRect = { TimerWindowX + 230, TimerWindowY + 110, 200, 200 };
+        SDL_RenderCopyExF(renderer, digits[Hours%10], NULL, &HourRect, 0, NULL, SDL_FLIP_NONE);
 
-        SDL_Rect MinHRect = { TimerWindowX + 580, TimerWindowY + 110, 200, 200 };
-        SDL_Rect MinLRect = { TimerWindowX + 650, TimerWindowY + 110, 200, 200 };
-        SDL_RenderCopyEx(renderer, digits[Minutes/10], NULL, &MinHRect, 0, NULL, SDL_FLIP_NONE);
-        SDL_RenderCopyEx(renderer, digits[Minutes%10], NULL, &MinLRect, 0, NULL, SDL_FLIP_NONE);
+        SDL_FRect MinHRect = { TimerWindowX + 580, TimerWindowY + 110, 200, 200 };
+        SDL_FRect MinLRect = { TimerWindowX + 650, TimerWindowY + 110, 200, 200 };
+        SDL_RenderCopyExF(renderer, digits[Minutes/10], NULL, &MinHRect, 0, NULL, SDL_FLIP_NONE);
+        SDL_RenderCopyExF(renderer, digits[Minutes%10], NULL, &MinLRect, 0, NULL, SDL_FLIP_NONE);
     }
 
+    if (DebugMode) {
+
+        double EyeXoff1_nV = 35;
+        double EyeXoff2_nV = -35;
+        double EyeYoff_nV = -73;
+
+        double HeadT_r_nV = HeadT_V * PI / 180;
+        double Xoff_r1_nV = cos(HeadT_r) * EyeXoff1_nV - sin(HeadT_r) * EyeYoff_nV;
+        double Yoff_r1_nV = sin(HeadT_r) * EyeXoff1_nV + cos(HeadT_r) * EyeYoff_nV;
+        double Xoff_r2_nV = cos(HeadT_r) * EyeXoff2_nV - sin(HeadT_r) * EyeYoff_nV;
+        double Yoff_r2_nV = sin(HeadT_r) * EyeXoff2_nV + cos(HeadT_r) * EyeYoff_nV;
+
+        double HeadOffsetX_r_nV = cos(BodyT_r) * (HeadOffsetX - 270) - sin(BodyT_r) * (HeadOffsetY - 70);
+        double HeadOffsetY_r_nV = sin(BodyT_r) * (HeadOffsetX - 270) + cos(BodyT_r) * (HeadOffsetY - 70);
+
+        double HeadX_nV = BodyX + HeadOffsetX_r_nV;
+        double HeadY_nV = BodyY + HeadOffsetY_r_nV;
+
+        /*
+        double TailOffsetX_r = cos(BodyT_r) * (TailOffsetX_V + 70 - 20 * sin(BodyT_r)) - sin(BodyT_r) * (TailOffsetY_V - 70);
+        double TailOffsetY_r = sin(BodyT_r) * (TailOffsetX_V + 70 - 20 * sin(BodyT_r)) + cos(BodyT_r) * (TailOffsetY_V - 70);
+
+        SDL_FRect tailRect = { BodyX_V + TailOffsetX_r, BodyY_V + TailOffsetY_r, TailW, TailH };
+        SDL_FPoint TailPivot = { TailW / 2, TailH / 4 };
+        SDL_RenderCopyExF(renderer, tail, NULL, &tailRect, -45 - TailT_V, &TailPivot, SDL_FLIP_NONE);
+        */
+        SDL_SetRenderDrawColor(renderer, 0, 0, 255, SDL_ALPHA_OPAQUE);
+
+        SDL_RenderDrawLineF(renderer, BodyX - BodyOffsetX, BodyY - BodyOffsetY, HeadX_nV, HeadY_nV);
+
+        SDL_RenderDrawLineF(renderer, BodyX - BodyOffsetX, BodyY - BodyOffsetY, BodyX - 240 + Paw0OffsetX, BodyY + 120 + Paw0OffsetY);
+        SDL_RenderDrawLineF(renderer, BodyX - BodyOffsetX, BodyY - BodyOffsetY, BodyX - 230 + Paw1OffsetX, BodyY + 120 + Paw1OffsetY);
+        SDL_RenderDrawLineF(renderer, BodyX - BodyOffsetX, BodyY - BodyOffsetY, BodyX + 30 + Paw2OffsetX, BodyY + 120 + Paw2OffsetY);
+        SDL_RenderDrawLineF(renderer, BodyX - BodyOffsetX, BodyY - BodyOffsetY, BodyX + 40 + Paw3OffsetX, BodyY + 120 + Paw3OffsetY);
+
+        SDL_RenderDrawLineF(renderer, HeadX_nV, HeadY_nV, HeadX + Xoff_r1_nV, HeadY_nV + Yoff_r1_nV);
+        SDL_RenderDrawLineF(renderer, HeadX_nV, HeadY_nV, HeadX + Xoff_r2_nV, HeadY_nV + Yoff_r2_nV);
+
+        SDL_RenderDrawLineF(renderer, BodyX - BodyOffsetX, BodyY - BodyOffsetY, BodyX + TailOffsetX_r, BodyY + TailOffsetY_r);
+
+
+        SDL_SetRenderDrawColor(renderer, 0, 255, 0, SDL_ALPHA_OPAQUE);
+
+        SDL_RenderDrawLine(renderer, BodyX - BodyOffsetX, BodyY - BodyOffsetY, BodyX - BodyOffsetX - cos(BodyT_r) * 50, BodyY - BodyOffsetY - sin(BodyT_r) * 50);
+
+        SDL_RenderDrawLineF(renderer, BodyX - 240 + Paw0OffsetX, BodyY + 120 + Paw0OffsetY, BodyX - 240 + Paw0OffsetX - cos(Paw0T*PI/180) * 50, BodyY + 120 + Paw0OffsetY - sin(Paw0T*PI/180) * 50);
+        SDL_RenderDrawLineF(renderer, BodyX - 230 + Paw1OffsetX, BodyY + 120 + Paw1OffsetY, BodyX - 230 + Paw1OffsetX - cos(Paw1T*PI/180) * 50, BodyY + 120 + Paw1OffsetY - sin(Paw1T*PI/180) * 50);
+        SDL_RenderDrawLineF(renderer, BodyX + 30 + Paw2OffsetX, BodyY + 120 + Paw2OffsetY, BodyX + 30 + Paw2OffsetX - cos(Paw2T*PI/180) * 50, BodyY + 120 + Paw2OffsetY - sin(Paw2T*PI/180) * 50);
+        SDL_RenderDrawLineF(renderer, BodyX + 40 + Paw3OffsetX, BodyY + 120 + Paw3OffsetY, BodyX + 40 + Paw3OffsetX - cos(Paw3T*PI/180) * 50, BodyY + 120 + Paw3OffsetY - sin(Paw3T*PI/180) * 50);
+
+        SDL_RenderDrawLineF(renderer, HeadX + Xoff_r1, HeadY_nV + Yoff_r1, HeadX + Xoff_r1_nV + 5*(Xoff_r1 - Xoff_r1_nV), HeadY_nV + Yoff_r1_nV + 5*(Yoff_r1 - Yoff_r1_nV));
+        SDL_RenderDrawLineF(renderer, HeadX + Xoff_r2, HeadY_nV + Yoff_r2, HeadX + Xoff_r2_nV + 5*(Xoff_r2 - Xoff_r2_nV), HeadY_nV + Yoff_r2_nV + 5*(Yoff_r2 - Yoff_r2_nV));
+
+        SDL_RenderDrawLineF(renderer, BodyX + TailOffsetX_r, BodyY + TailOffsetY_r, BodyX + TailOffsetX_r + cos(TailT*PI/-180 + 45) * 50, BodyY + TailOffsetY_r + sin(TailT*PI/-180 + 45) * 50);
+
+
+        SDL_SetRenderDrawColor(renderer,255, 0, 0, SDL_ALPHA_OPAQUE);
+
+        SDL_RenderDrawLine(renderer, BodyX - BodyOffsetX, BodyY - BodyOffsetY, BodyX_V - BodyOffsetX_V, BodyY_V - BodyOffsetY_V);
+
+        SDL_RenderDrawLine(renderer, HeadX, HeadY, HeadX_nV, HeadY_nV);
+
+        SDL_RenderDrawLineF(renderer, BodyX - 240 + Paw0OffsetX, BodyY + 120 + Paw0OffsetY, BodyX_V - 240 + Paw0OffsetX_V, BodyY_V + 120 + Paw0OffsetY_V);
+        SDL_RenderDrawLineF(renderer, BodyX - 230 + Paw1OffsetX, BodyY + 120 + Paw1OffsetY, BodyX_V - 230 + Paw1OffsetX_V, BodyY_V + 120 + Paw1OffsetY_V);
+        SDL_RenderDrawLineF(renderer, BodyX + 30 + Paw2OffsetX, BodyY + 120 + Paw2OffsetY, BodyX_V + 30 + Paw2OffsetX_V, BodyY_V + 120 + Paw2OffsetY_V);
+        SDL_RenderDrawLineF(renderer, BodyX + 40 + Paw3OffsetX, BodyY + 120 + Paw3OffsetY, BodyX_V + 40 + Paw3OffsetX_V, BodyY_V + 120 + Paw3OffsetY_V);
+
+        SDL_RenderDrawLineF(renderer, HeadX + Xoff_r1, HeadY_nV + Yoff_r1, HeadX + Xoff_r1_nV, HeadY_nV + Yoff_r1_nV);
+        SDL_RenderDrawLineF(renderer, HeadX + Xoff_r2, HeadY_nV + Yoff_r2, HeadX + Xoff_r2_nV, HeadY_nV + Yoff_r2_nV);
+
+        SDL_RenderDrawLineF(renderer, BodyX + TailOffsetX_r, BodyY + TailOffsetY_r, BodyX + TailOffsetX_r + cos(TailT_V * PI / -180 + 45) * 25, BodyY + TailOffsetY_r + sin(TailT_V * PI / -180 + 45) * 25);
+    }
 
     // Add window transparency (Magenta will be transparent)
     MakeWindowTransparent(window, RGB(255, 0, 255));
@@ -1065,5 +1136,7 @@ int StudyBuddy::StartBuddy() {
 
 int main(int argc, char* argv[]) {
     StudyBuddy Buddy;
+    // uncomment the following line to enable debug view
+    //Buddy.DebugMode = 0;
     return Buddy.StartBuddy();
 }
